@@ -11,6 +11,9 @@ const morgan = require("morgan");
 // app.use(morgan("tiny"));
 
 app.use(express.json());
+
+app.use(express.static("dist"))
+
 app.use(cors()); //allow for requests from all origins
 
 morgan.token("body", (req) => {
