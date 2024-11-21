@@ -1,30 +1,42 @@
-const mongoose = require("mongoose");
-require("dotenv").config(); // Load env vars
+const mongoose = require('mongoose');
+// const { type } = require('os');
+require('dotenv').config(); // Load env vars
 
-mongoose.set("strictQuery", false);
+mongoose.set('strictQuery', false);
 const url = process.env.MONGODB_URI;
 
-console.log("connecting to", url);
+console.error('connecting to', url);
 
 mongoose
   .connect(url)
-  .then((result) => {
-    console.log("connected to MongoDB");
+  .then(() => {
+    console.warn('connected to MongoDB');
   })
   .catch((error) => {
-    console.log("error connecting to MongoDB:", error.message);
+    console.error('error connecting to MongoDB:', error.message);
   });
 
 const phoneSchema = new mongoose.Schema({
   name: {
     type: String,
-    minLength: 4,
+    minLength: 3,
     required: true,
   },
-  phoneNumber: Number,
+  phoneNumber: {
+    type: String,
+    required: [true, 'User phone number required'],
+    validate: {
+      validator: (v) => {
+        // Regular expression to match the required phone number format
+        return /^\d{2,3}-\d{5,}$/.test(v);
+      },
+      message: (props) =>
+        `${props.value} is not a valid phone number! Format must be XX-XXXXX or XXX-XXXXX`,
+    },
+  },
 });
 
-phoneSchema.set("toJSON", {
+phoneSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
 
@@ -33,4 +45,4 @@ phoneSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Phone", phoneSchema);
+module.exports = mongoose.model('Phone', phoneSchema);
